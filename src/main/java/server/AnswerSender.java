@@ -18,7 +18,7 @@ public class AnswerSender {
         ByteBuffer buffer = ByteBuffer.wrap(byteOutput.toByteArray());
         if (address != null) {
             channel.send(buffer, address);
-            Server.LOG.info("Ответ клиенту {} отправлен.", address);
+            Server.LOG.info("Answer for client {} on the way.", address);
         }
     }
 }

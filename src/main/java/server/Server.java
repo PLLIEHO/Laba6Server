@@ -3,12 +3,13 @@ package server;
 
 
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.core.Collection;
 import server.core.Saver;
 import server.core.XMLSearcher;
-
+import sun.misc.Signal;
 
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class Server {
         public final static Logger LOG = LoggerFactory.getLogger(Processor.class);
     public static void main(String[] args) {
             try {
-                    LOG.info("Сервер запущен и работает");
+                    LOG.info("Server set up and launched");
                     DatagramChannelBuilder builder = new DatagramChannelBuilder();
                     System.out.println("Введите порт...");
                     Scanner in = new Scanner(System.in);
@@ -31,18 +32,18 @@ public class Server {
                             if(port<65535&&port>0) {
                                     ServerPort = port;
                             } else {
-                                    LOG.info("Порт {} введён неправильно", port);
+                                    LOG.info("Port {} is wrong", port);
                                     main(args);
                             }
                     } catch (NumberFormatException e){
-                            LOG.info("Порт введён неверно. Перезапуск сервера...");
+                            LOG.info("Port is wrong. Relaunching server...");
                             main(args);
                     }
                     InetSocketAddress address = new InetSocketAddress(ServerPort);
                     DatagramChannel channel = builder.build();
                     channel.bind(address);
 
-                    Server.LOG.info("Датаграм-канал открыт. Порт: {}", ServerPort);
+                    Server.LOG.info("Datagram-channel opened. Port: {}", ServerPort);
                     channel.configureBlocking(false);
 
                     XMLSearcher searchXML = new XMLSearcher();
@@ -52,11 +53,11 @@ public class Server {
                     filepath = args[0];
                     processor.begin(channel, collection);
             } catch(IOException e){
-                    System.err.println("Ошибка инициализации сервера");
+                    Server.LOG.info("Server initialization mistake.");
                 }
             }
         /*private static void setupSignalHandler(Collection collection, String filepath) {
-                Signal.handle(new Signal("TSTP"), signal -> {
+                Signal.handle(new Signal("INT"), signal -> {
                         try {
                                 LOG.info("Сохранение...");
                                 Saver outputCore = new Saver();

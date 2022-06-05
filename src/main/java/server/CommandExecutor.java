@@ -77,7 +77,7 @@ public class CommandExecutor {
                 Saver saver = new Saver();
                 saver.save(filename, collection);
                 answer = "Коллекция сохранена. До скорой встречи.";
-                Server.LOG.info("Сохранение успешно.");
+                Server.LOG.info("Saving done.");
                 break;
             case REMOVE_BY_ID:
                 RemoveById removeById = new RemoveById();
@@ -109,7 +109,7 @@ public class CommandExecutor {
                 answer = descendingSort.descendingSort(collection);
                 break;
         }
-        Server.LOG.info("Сообщение для клиента: {}", answer);
+        Server.LOG.info("Message for client: {}", answer);
         return answer;
     }
 }

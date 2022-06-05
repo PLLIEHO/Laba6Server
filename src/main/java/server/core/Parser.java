@@ -36,7 +36,7 @@ public class Parser {
     }
 
     public void start(String fileName) throws IOException {
-        Server.LOG.info("Парсер приступает к расшифровке файла {}", fileName);
+        Server.LOG.info("Parser started reading file {}", fileName);
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         if(lineCounter(fileName)>2) {
             String line;
@@ -46,7 +46,7 @@ public class Parser {
                 }
             }
         } else {
-            Server.LOG.info("Файл {} пуст или содержит недостаточно информации.", fileName);
+            Server.LOG.info("File {} is empty or contain not enough data.", fileName);
         }
     }
 
@@ -84,7 +84,7 @@ public class Parser {
                 else if(sygnal&&!tag.equals(TagList.HEROLIST_OVER)&&!check()) {
                     collection.getCollection().removeLast();
                     sygnal = false;
-                    Server.LOG.info("В файле ошибка. Проверьте целостность данных и количество аргументов.");
+                    Server.LOG.info("File error. Check data and arguments");
                     throw new FileErrorException("В файле ошибка. Проверьте целостность данных и количество аргументов.");
                 }
                 else {

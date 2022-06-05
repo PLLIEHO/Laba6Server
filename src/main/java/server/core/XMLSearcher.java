@@ -15,12 +15,12 @@ public class XMLSearcher {
             if(file.exists()&&file.canRead()) {
                 Parser parser = new Parser(collection);
                 parser.start(filename);
-                Server.LOG.info("Файл успешно прочитан. Объекты загружены в коллекцию");
+                Server.LOG.info("File successfully parsed. Ready for action.");
 
-            } else {Server.LOG.info("Данного файла {} не существует. Сервер будет выключен.", filename); System.exit(1);}
+            } else {Server.LOG.info("File {} was not found. Server will be terminated.", filename); System.exit(1);}
         } catch (FileNotFoundException e) {
             if(file.exists()){
-                Server.LOG.info("Файл {} заблокирован для чтения. Сервер будет выключен.", filename);
+                Server.LOG.info("File {} was blocked for reading. Server will be terminated.", filename);
                 System.exit(1);}
             } catch (IOException e) {
             e.printStackTrace();

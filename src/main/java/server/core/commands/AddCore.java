@@ -35,6 +35,7 @@ public class AddCore {
     }
 
     public String add() throws IOException {
+        System.out.println(args);
         maxList.clear();
         maxList.addAll(collection.getCollection());
         if (collection.getCollection().size() > 0) {

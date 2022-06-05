@@ -56,7 +56,7 @@ public class Processor {
                     Serializer serializer = new Serializer();
                     InetSocketAddress clientAddress = (InetSocketAddress) address;
                     clientRequest.flip();
-                    Server.LOG.info("Получен пакет от клиента {}", address.toString());
+                    Server.LOG.info("Packet received from client {}", address.toString());
 
                     Request request = (Request) serializer.deserialize(clientRequest.array());
                     if(!checkApproval(request)) {
@@ -76,7 +76,7 @@ public class Processor {
     public boolean checkApproval(Request request) throws NullPointerException{
             if (confirmation.size() > 0 ) {
                 if (request.getArgument().getArgB() != null && Objects.equals(request.getArgument().getArgB(), confirmation.peek().getAddress().getHostAddress())) {
-                    Server.LOG.info("Клиент {} подтвердил получение ответа.", request.getArgument().getArgB());
+                    Server.LOG.info("Client {} approved answer claiming.", request.getArgument().getArgB());
                     return true;
                 } else {
                     return false;

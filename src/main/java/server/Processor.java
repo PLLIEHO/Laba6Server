@@ -1,34 +1,27 @@
 package server;
 
 
-import common.Answer;
 import common.Request;
 import common.Serializer;
 import server.core.Collection;
-import server.core.Saver;
-import server.core.commands.History;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ForkJoinPool;
 
-public class Processor {
+public class Processor  {
     public SocketAddress address;
-    private String filename;
     private Queue<InetSocketAddress> confirmation = new LinkedList<>();
-    private String approvalString;
-
-    public Processor(String filename){
-        this.filename = filename;
-    }
 
     public void begin(DatagramChannel channel, Collection collection) {
         try {
@@ -49,30 +42,21 @@ public class Processor {
                 break;
             }
         }
-        History history = new History();
-        while (true) {
-                address = channel.receive(clientRequest);
-                if(address!=null) {
-                    Serializer serializer = new Serializer();
-                    InetSocketAddress clientAddress = (InetSocketAddress) address;
-                    clientRequest.flip();
-                    Server.LOG.info("Packet received from client {}", address.toString());
-
-                    Request request = (Request) serializer.deserialize(clientRequest.array());
-                    if(!checkApproval(request)) {
-                        confirmation.add(clientAddress);
-                        CommandExecutor core = new CommandExecutor(request, collection, channel);
-                        AnswerSender sender = new AnswerSender(address);
-                        sender.send(channel, new Serializer().serialize(new Answer(core.commandSearch(history, filename))));
-                        clientRequest.clear();
-                    }
-                    else {
-                        confirmation.remove();
-                        clientRequest.clear();
-                    }
+        while (channel.isOpen()) {
+            ForkJoinPool fjp = new ForkJoinPool(2);
+            address = channel.receive(clientRequest);
+            if(address!=null) {
+                try {
+                    fjp.invoke(new Receiver(address, channel, clientRequest, collection, confirmation, this, fjp));
+                } catch (CancellationException e) {
+                    fjp.shutdownNow();
                 }
+            } else {
+                clientRequest.clear();
+            }
         }
     }
+
     public boolean checkApproval(Request request) throws NullPointerException{
             if (confirmation.size() > 0 ) {
                 if (request.getArgument().getArgB() != null && Objects.equals(request.getArgument().getArgB(), confirmation.peek().getAddress().getHostAddress())) {

@@ -2,6 +2,7 @@ package server.core.commands;
 
 
 import server.CommandExecutor;
+import server.DBConnection;
 import server.core.Collection;
 import server.core.comparators.CoordsXComparator;
 import server.core.comparators.CoordsYComparator;
@@ -15,9 +16,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
 
-public class AddCore {
+public class AddCore extends RecursiveTask<String> {
     private boolean addIfMaxFlag = false;
     private String addIfMaxElement;
     private CommandExecutor core;
@@ -26,15 +28,18 @@ public class AddCore {
     private String[] args;
     private String answer;
     private boolean deleteFlag = false;
-    HumanBeing human = new HumanBeing();
+    private HumanBeing human = new HumanBeing();
+    private String user;
 
-    public AddCore(Collection collection, CommandExecutor core, String[] args){
+    public AddCore(Collection collection, CommandExecutor core, String[] args, String user){
         this.collection = collection;
         this.core = core;
         this.args = args;
+        this.user = user;
     }
 
-    public String add() throws IOException {
+    @Override
+    public String compute() {
         System.out.println(args);
         maxList.clear();
         maxList.addAll(collection.getCollection());
@@ -44,22 +49,33 @@ public class AddCore {
             human.setId(1);
         }
         addName();
-        addCoordsX();
-        addCoordsY();
-        Date date = new Date();
-        human.setCreationDate(date);
-        isRealHero();
+        try {
+            addCoordsX();
+            addCoordsY();
+            Date date = new Date();
+            human.setCreationDate(date);
+            isRealHero();
         hasToothPick();
         impactSpeed();
         weaponType();
         mood();
         addCarName();
         setCarCool();
+        human.setUser(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         addIfMaxFlag = false;
         if(!deleteFlag) {
-            collection.getCollection().add(human);
-            answer = "Добавление прошло успешно.";
-        } else {deleteFlag = false;
+            DBConnection connection = new DBConnection();
+            if(connection.addToBD(human, user)){
+                answer = collection.addHuman(collection.createHumanToAdd(human));
+            } else {
+                answer = "Could not add the object. Try again.";
+            }
+        } else {
+            answer = "Could not add the object. Try again.";
+            deleteFlag = false;
         }
         return answer;
 
@@ -67,184 +83,97 @@ public class AddCore {
 
     public void addName() {
         String name = args[0];
-        if (!name.equals("")) {
-            human.setName(name);
-        } else {
-            answer = "Имя не должно быть пустым.";
-            deleteFlag = true;
-        }
+        human.setName(name);
     }
 
     public void addCarName() {
         String name = args[8];
-        if (!name.equals("")) {
-            human.setCarName(name);
-        } else {
-            answer = "Имя машины не должно быть пустым.";
-            deleteFlag = true;
-        }
+        human.setCarName(name);
     }
 
     public void setCarCool() throws IOException {
-        String cool = args[9].toUpperCase();
-        if (!addIfMaxFlag || maxCheck(REALHERO, cool)) {
-            if (cool.equals("ДА")) {
+        String cool = args[9];
+            if (cool.equals("true")) {
                 human.setCarCool(true);
-            } else if (cool.equals("НЕТ")) {
+            } else if (cool.equals("false")) {
                 human.setCarCool(false);
-            } else {
-                answer = "Данные по полю carCool не верны.";
-                deleteFlag = true;
             }
-        }
     }
 
     public void mood() {
         String moodType = args[7].toLowerCase();
-        switch (moodType) {
-            case "sadness":
-                human.setMood(Mood.SADNESS);
-                break;
-            case "gloom":
-                human.setMood(Mood.GLOOM);
-                break;
-            case "apathy":
-                human.setMood(Mood.APATHY);
-                break;
-            case "calm":
-                human.setMood(Mood.CALM);
-                break;
-            case "rage":
-                human.setMood(Mood.RAGE);
-                break;
-            default:
-                answer = "Данные по полю mood не распознаны.";
-                deleteFlag = true;
-
+        Mood mood = Mood.parseMood(moodType);
+        human.setMood(mood);
         }
-    }
+
 
     public void weaponType() {
         String weapon = args[6].toLowerCase();
-        switch (weapon) {
-            case "axe":
-                human.setWeaponType(WeaponType.AXE);
-                break;
-            case "pistol":
-                human.setWeaponType(WeaponType.PISTOL);
-                break;
-            case "shotgun":
-                human.setWeaponType(WeaponType.SHOTGUN);
-                break;
-            case "rifle":
-                human.setWeaponType(WeaponType.RIFLE);
-                break;
-            default:
-                answer = "Данные по полю weaponType не распознаны.";
-                deleteFlag = true;
-
-        }
+        human.setWeaponType(WeaponType.parseWeaponType(weapon));
     }
 
     public void isRealHero() throws IOException {
-        String hero = args[3].toUpperCase();
-        if (!addIfMaxFlag || maxCheck(REALHERO, hero)) {
-            if (hero.equals("ДА")) {
+        String hero = args[3];
+            if (hero.equals("true")) {
                 human.setRealHero(true);
-            } else if (hero.equals("НЕТ")) {
+            } else if (hero.equals("false")) {
                 human.setRealHero(false);
-            } else {
-                answer = "Данные по полю isRealHero не верны.";
-                deleteFlag = true;
             }
-        }
     }
 
-    public void addCoordsX() {
+    public void addCoordsX() throws IOException {
         String x = args[1];
-        try {
+        if (!addIfMaxFlag || (maxCheck(COORDSX, x)&&addIfMaxElement.equals(COORDSX))) {
             float floatX = Float.parseFloat(x);
-            if (!addIfMaxFlag || maxCheck(COORDSX, x)) {
-                if (floatX > -316) {
-                    human.setCoordinatesX(floatX);
-                } else {
-                    answer = "Данные по полю coordsX не верны.";
-                    deleteFlag = true;
-                }
-            }
-        } catch (NumberFormatException | IOException e) {
-            answer = "Данные по полю coordsX не верны.";
-            deleteFlag = true;
+            human.setCoordinatesX(floatX);
         }
     }
 
-    public void addCoordsY() {
+    public void addCoordsY() throws IOException {
         String y = args[2];
-        try {
-            if (!addIfMaxFlag || maxCheck(COORDSY, y)) {
-                human.setCoordinatesY(Double.parseDouble(y));
-            }
-        } catch (NumberFormatException | IOException e) {
-            answer = "Данные по полю coordsY не верны.";
-            deleteFlag = true;
+        if (!addIfMaxFlag || (maxCheck(COORDSY, y)&&addIfMaxElement.equals(COORDSY))) {
+            human.setCoordinatesY(Double.parseDouble(y));
         }
     }
 
     public void hasToothPick() throws IOException {
-        String toothPick = args[4].toUpperCase();
-        if (!addIfMaxFlag || maxCheck(HASTOOTHPICK, toothPick)) {
+        String toothPick = args[4];
             switch (toothPick) {
-                case "ДА":
+                case "true":
                     human.setHasToothPick(true);
                     break;
-                case "НЕТ":
+                case "false":
                     human.setHasToothPick(false);
                     break;
-                case "":
+                case "null":
                     human.setHasToothPick(null);
                     break;
-                default:
-                    answer = "Данные по полю hasToothPick не верны.";
-                    deleteFlag = true;
-            }
         }
     }
 
-    public void impactSpeed() {
+    public void impactSpeed() throws IOException {
         String speed = args[5];
-        if (!speed.equals("")) {
-            try {
-                if (!addIfMaxFlag || maxCheck(IMPACTSPEED, speed)) {
+        if (!speed.equals("null")) {
+                if (!addIfMaxFlag || (maxCheck(IMPACTSPEED, speed)&&addIfMaxElement.equals(IMPACTSPEED))) {
                     long longSpeed = Long.parseLong(speed);
-                    if (longSpeed > -902) {
-                        human.setImpactSpeed(longSpeed);
-                    } else {
-                        answer = "Данные по полю impactSpeed не верны.";
-                        deleteFlag = true;
-                    }
+                    human.setImpactSpeed(longSpeed);
                 }
-            } catch (NumberFormatException | IOException e) {
-                answer = "Данные по полю impactSpeed не верны.";
-                deleteFlag = true;
-            }
         } else {
             human.setImpactSpeed(null);
         }
     }
 
-    public String add(String addIfMaxElement) throws IOException {
+    public String add(String addIfMaxElement, boolean addIfMaxFlag) throws IOException {
         this.setAddIfMaxElement(addIfMaxElement);
-        this.addIfMaxFlag = true;
-        return this.add();
+        this.addIfMaxFlag = addIfMaxFlag;
+        this.fork();
+        return this.join();
     }
 
-    public boolean maxCheck(String element, String value) throws IOException {
+    public boolean maxCheck(String element, String value){
         float coordsMinX = -316;
         double coordsMinY = -100000000;
-        boolean realHero = false;
-        Boolean hasToothpick = false;
         long impactSpeed = -100000000L;
-        boolean carCool = false;
         if (maxList.size() > 0) {
             for (HumanBeing humanBeing : maxList) {
                 switch (addIfMaxElement) {
@@ -286,40 +215,8 @@ public class AddCore {
                     return (true);
                 }
                 break;
-            case REALHERO:
-                if (!realHero && value.equals("false")) {
-                    this.addIfMaxFailure();
-                } else if (realHero) {
-                    this.addIfMaxFailure();
-                } else {
-                    addIfMaxFlag = false;
-                    return (true);
-                }
-                break;
-            case HASTOOTHPICK:
-                if (!hasToothpick && value.equals("false")) {
-                    this.addIfMaxFailure();
-                } else if (hasToothpick) {
-                    this.addIfMaxFailure();
-                } else if (value.equals("")) {
-                    this.addIfMaxFailure();
-                } else {
-                    addIfMaxFlag = false;
-                    return (true);
-                }
-                break;
             case IMPACTSPEED:
                 if (impactSpeed > Long.parseLong(element)) {
-                    this.addIfMaxFailure();
-                } else {
-                    addIfMaxFlag = false;
-                    return (true);
-                }
-                break;
-            case CARCOOL:
-                if (!carCool && value.equals("false")) {
-                    this.addIfMaxFailure();
-                } else if (carCool) {
                     this.addIfMaxFailure();
                 } else {
                     addIfMaxFlag = false;
@@ -333,8 +230,7 @@ public class AddCore {
         return (true);
     }
 
-    public void addIfMaxFailure() throws IOException {
-        System.out.println("Данные, введенные ранее, не превышают значения максимального элемента. Новый элемент не будет добавлен.");
+    public void addIfMaxFailure(){
         deleteFlag = true;
         addIfMaxFlag = false;
         answer = "Данные, введенные ранее, не превышают значения максимального элемента. Новый элемент не будет добавлен.";
@@ -361,5 +257,7 @@ public class AddCore {
     private static final String COORDSX = "coordinates_x";
     private static final String COORDSY = "coordinates_y";
     private static final String CARCOOL = "carcool";
+
+
 }
 

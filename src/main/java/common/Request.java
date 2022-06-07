@@ -6,9 +6,11 @@ public class Request implements Serializable {
     private static final long serialVersionUID = -1069157352143096370L;
     private CommandList command;
     private Pack argument;
-    public Request(CommandList command, Pack argument){
+    private String userLogin;
+    public Request(CommandList command, Pack argument, String userLogin){
         this.command = command;
         this.argument = argument;
+        this.userLogin = userLogin;
     }
     public CommandList getCommand(){
         return command;
@@ -16,5 +18,9 @@ public class Request implements Serializable {
 
     public Pack getArgument() {
         return argument;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
     }
 }

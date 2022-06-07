@@ -7,19 +7,18 @@ package server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.core.Collection;
-import server.core.Saver;
-import server.core.XMLSearcher;
 import sun.misc.Signal;
 
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.sql.SQLException;
 import java.util.Scanner;
+import java.util.concurrent.CancellationException;
 
 public class Server {
         public static int ServerPort;
-        public static String filepath;
         public final static Logger LOG = LoggerFactory.getLogger(Processor.class);
     public static void main(String[] args) {
             try {
@@ -39,6 +38,9 @@ public class Server {
                             LOG.info("Port is wrong. Relaunching server...");
                             main(args);
                     }
+                    DBConnection connection = new DBConnection();
+                    connection.getConnection();
+
                     InetSocketAddress address = new InetSocketAddress(ServerPort);
                     DatagramChannel channel = builder.build();
                     channel.bind(address);
@@ -46,28 +48,35 @@ public class Server {
                     Server.LOG.info("Datagram-channel opened. Port: {}", ServerPort);
                     channel.configureBlocking(false);
 
-                    XMLSearcher searchXML = new XMLSearcher();
-                    Processor processor = new Processor(args[0]);
-                    Collection collection = searchXML.searchFile(args[0]);
-                    //setupSignalHandler(collection, args[0]);
-                    filepath = args[0];
+                    Processor processor = new Processor();
+                    Collection collection = connection.load();
+                    setupSignalHandler(channel);
                     processor.begin(channel, collection);
             } catch(IOException e){
                     Server.LOG.info("Server initialization mistake.");
+                    e.printStackTrace();
                 }
             }
-        /*private static void setupSignalHandler(Collection collection, String filepath) {
+        private static void setupSignalHandler(DatagramChannel channel) {
                 Signal.handle(new Signal("INT"), signal -> {
                         try {
-                                LOG.info("Сохранение...");
-                                Saver outputCore = new Saver();
-                                outputCore.save(filepath, collection);
-                                LOG.info("Сохранение прошло успешно.");
-                        } catch (IOException e) {
+                                System.out.println("Turn off the server? (да/нет)");
+                                Scanner scanner = new Scanner(System.in);
+                                String ans = scanner.nextLine();
+                                if (ans.equals("да")){
+                                        Receiver.endFlag = true;
+                                        DBConnection.connection.close();
+                                        channel.close();
+                                        System.exit(0);
+                                } else{
+                                        System.out.println("Continuing work.");
+                                }
+                        } catch (IOException | SQLException e) {
                                 e.printStackTrace();
                                 throw new RuntimeException(e);
+                        } catch (CancellationException c){
                         }
                 });
-        }*/
         }
+}
 

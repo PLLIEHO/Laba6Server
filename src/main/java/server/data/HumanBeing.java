@@ -13,6 +13,7 @@ public class HumanBeing {
     private WeaponType weaponType;
     private Mood mood;
     private Car car = new Car();
+    private String user;
 
     public void setId(long id){
         this.id = id;
@@ -34,8 +35,10 @@ public class HumanBeing {
     public void setMood(Mood mood){this.mood = mood;}
     public void setCarName(String CarName){car.setName(CarName);}
     public void setCarCool(boolean cool){car.setCool(cool);}
+    public void setUser(String user){this.user = user;}
 
     public long getId(){return id;}
+    public String getUser(){return user;}
     public String getName(){return name;}
     public float getCoordinatesX(){return coordinates.getX();}
     public double getCoordinatesY(){return coordinates.getY();}

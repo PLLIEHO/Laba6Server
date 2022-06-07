@@ -288,6 +288,10 @@ public class Parser {
                 collection.getHuman().setHasToothPick(false);
                 checklist.put("hastoothpick", true);
             }
+            else if (toothPick.equals("")){
+                collection.getHuman().setHasToothPick(null);
+                checklist.put("hastoothpick", true);
+            }
         }
     }
 

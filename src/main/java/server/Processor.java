@@ -42,17 +42,22 @@ public class Processor  {
                 break;
             }
         }
-        while (channel.isOpen()) {
-            ForkJoinPool fjp = new ForkJoinPool(2);
-            address = channel.receive(clientRequest);
-            if(address!=null) {
+        while (true) {
+            if(channel.isOpen()) {
                 try {
-                    fjp.invoke(new Receiver(address, channel, clientRequest, collection, confirmation, this, fjp));
-                } catch (CancellationException e) {
-                    fjp.shutdownNow();
+                    ForkJoinPool fjp = new ForkJoinPool(2);
+                    address = channel.receive(clientRequest);
+                    if (address != null) {
+                        try {
+                            fjp.invoke(new Receiver(address, channel, clientRequest, collection, confirmation, this, fjp));
+                        } catch (CancellationException e) {
+                            fjp.shutdownNow();
+                        }
+                    } else {
+                        clientRequest.clear();
+                    }
+                } catch (ClosedChannelException e){
                 }
-            } else {
-                clientRequest.clear();
             }
         }
     }

@@ -77,11 +77,11 @@ public class HumanBeing {
 
     @Override
     public String toString(){
-        String str = "ID: " + id + "\n" + "Имя: " + name + "\n" + "Координаты: " + "\n" + "X: " + coordinates.getX() + "\n" +
-                "Y: " + coordinates.getY() + "\n" + "Дата создания: " + creationDate.toString() + "\n" + "Статус героя: " +
-                realHero.toString() + "\n" + "Наличие зубочистки: " + this.toothPickChecker() + "\n" + "Скорость воздействия: " +
-                impactSpeed + "\n" + "Оружие: " + weaponType + "\n" + "Настроение: " + mood + "\n" + "Машина: " + "\n" + "Название машины: " +
-                car.getName() + "\n" + "Крутость машины: " + car.getCool() + "\n";
+        String str = id + "  " + name + "  " + coordinates.getX() + "  " +
+                coordinates.getY() + "  " + creationDate.toString() + "  " +
+                realHero.toString() + "  " +  this.toothPickChecker() + "  " +
+                impactSpeed + "  " + weaponType + "  " + mood + "  " +
+                car.getName() + "  " + car.getCool() + "\n";
         return str;
     }
 

@@ -26,6 +26,7 @@ class Receiver extends RecursiveAction {
     private Processor processor;
     private ForkJoinPool fjp;
     public static boolean endFlag = false;
+    private static History history = new History();
 
     public Receiver(SocketAddress address, DatagramChannel channel, ByteBuffer clientRequest, Collection collection, Queue<InetSocketAddress> confirmation, Processor processor, ForkJoinPool fjp){
         this.address = address;
@@ -36,7 +37,6 @@ class Receiver extends RecursiveAction {
         this.processor = processor;
         this.fjp = fjp;
     }
-    History history = new History();
     @Override
     protected void compute() {
             if (address != null) {

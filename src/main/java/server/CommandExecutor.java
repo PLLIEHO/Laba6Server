@@ -28,8 +28,8 @@ public class CommandExecutor extends RecursiveTask<Object> {
     }
     @Override
     protected Object compute() {
-        if (new Hasher().hash(request.getPassword()).equals(new DBConnection().getUserByLogin(request.getUserLogin()))) {
-            CommandList command = request.getCommand();
+        CommandList command = request.getCommand();
+        if ((command.equals(CommandList.SIGN_IN)||command.equals(CommandList.SIGN_UP))||(new Hasher().hash(request.getPassword()).equals(new DBConnection().getUserByLogin(request.getUserLogin())))) {
             String user = request.getUserLogin();
             history.storyAdd(command);
             Pack arg = request.getArgument();

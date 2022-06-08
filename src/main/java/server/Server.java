@@ -60,21 +60,15 @@ public class Server {
         private static void setupSignalHandler(DatagramChannel channel) {
                 Signal.handle(new Signal("INT"), signal -> {
                         try {
-                                System.out.println("Turn off the server? (да/нет)");
-                                Scanner scanner = new Scanner(System.in);
-                                String ans = scanner.nextLine();
-                                if (ans.equals("да")){
                                         Receiver.endFlag = true;
                                         DBConnection.connection.close();
                                         channel.close();
                                         System.exit(0);
-                                } else{
-                                        System.out.println("Continuing work.");
-                                }
                         } catch (IOException | SQLException e) {
                                 e.printStackTrace();
                                 throw new RuntimeException(e);
-                        } catch (CancellationException c){
+                        } catch (CancellationException | NullPointerException c){
+                                System.exit(0);
                         }
                 });
         }

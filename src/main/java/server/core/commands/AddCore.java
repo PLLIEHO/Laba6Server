@@ -4,6 +4,7 @@ package server.core.commands;
 import common.ElementList;
 import server.CommandExecutor;
 import server.DBConnection;
+import server.Server;
 import server.core.Collection;
 import server.core.comparators.CoordsXComparator;
 import server.core.comparators.CoordsYComparator;
@@ -13,10 +14,7 @@ import server.data.Mood;
 import server.data.WeaponType;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
 
@@ -155,12 +153,15 @@ public class AddCore extends RecursiveTask<String> {
         double coordsMinY = -100000000;
         long impactSpeed = -100000000L;
         if (maxList.size() > 0) {
-            for (HumanBeing humanBeing : maxList) {
+            for (int i=0; i<maxList.size(); i++) {
                 switch (addIfMaxElement) {
                     case ElementList.COORDSX:
                         maxList = maxList.stream().sorted(new CoordsXComparator()).collect(Collectors.toList());
+                        System.out.println(Arrays.toString(maxList.toArray()));
                         Collections.reverse(maxList);
+                        System.out.println(Arrays.toString(maxList.toArray()));
                         coordsMinX = maxList.get(0).getCoordinatesX();
+                        System.out.println(coordsMinX);
                         break;
                     case ElementList.COORDSY:
                         maxList = maxList.stream().sorted(new CoordsYComparator()).collect(Collectors.toList());
@@ -173,7 +174,7 @@ public class AddCore extends RecursiveTask<String> {
                         impactSpeed = maxList.get(0).getImpactSpeed();
                         break;
                     default:
-                        System.out.println("Вы ввели неправильный элемент.");
+                        Server.LOG.info("Вы ввели неправильный элемент.");
 
                 }
             }

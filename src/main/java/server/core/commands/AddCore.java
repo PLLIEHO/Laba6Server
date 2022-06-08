@@ -1,6 +1,7 @@
 package server.core.commands;
 
 
+import common.ElementList;
 import server.CommandExecutor;
 import server.DBConnection;
 import server.core.Collection;
@@ -69,7 +70,7 @@ public class AddCore extends RecursiveTask<String> {
         if(!deleteFlag) {
             DBConnection connection = new DBConnection();
             if(connection.addToBD(human, user)){
-                answer = collection.addHuman(collection.createHumanToAdd(human));
+                answer = collection.addHuman(collection.createHumanToAdd(human), collection);
             } else {
                 answer = "Could not add the object. Try again.";
             }
@@ -92,12 +93,7 @@ public class AddCore extends RecursiveTask<String> {
     }
 
     public void setCarCool() throws IOException {
-        String cool = args[9];
-            if (cool.equals("true")) {
-                human.setCarCool(true);
-            } else if (cool.equals("false")) {
-                human.setCarCool(false);
-            }
+        human.setCarCool(Boolean.parseBoolean(args[9]));
     }
 
     public void mood() {
@@ -113,17 +109,12 @@ public class AddCore extends RecursiveTask<String> {
     }
 
     public void isRealHero() throws IOException {
-        String hero = args[3];
-            if (hero.equals("true")) {
-                human.setRealHero(true);
-            } else if (hero.equals("false")) {
-                human.setRealHero(false);
-            }
+        human.setRealHero(Boolean.parseBoolean(args[3]));
     }
 
     public void addCoordsX() throws IOException {
         String x = args[1];
-        if (!addIfMaxFlag || (maxCheck(COORDSX, x)&&addIfMaxElement.equals(COORDSX))) {
+        if (!addIfMaxFlag || (maxCheck(ElementList.COORDSX, x)&&addIfMaxElement.equals(ElementList.COORDSX))) {
             float floatX = Float.parseFloat(x);
             human.setCoordinatesX(floatX);
         }
@@ -131,30 +122,19 @@ public class AddCore extends RecursiveTask<String> {
 
     public void addCoordsY() throws IOException {
         String y = args[2];
-        if (!addIfMaxFlag || (maxCheck(COORDSY, y)&&addIfMaxElement.equals(COORDSY))) {
+        if (!addIfMaxFlag || (maxCheck(ElementList.COORDSY, y)&&addIfMaxElement.equals(ElementList.COORDSY))) {
             human.setCoordinatesY(Double.parseDouble(y));
         }
     }
 
     public void hasToothPick() throws IOException {
-        String toothPick = args[4];
-            switch (toothPick) {
-                case "true":
-                    human.setHasToothPick(true);
-                    break;
-                case "false":
-                    human.setHasToothPick(false);
-                    break;
-                case "null":
-                    human.setHasToothPick(null);
-                    break;
-        }
+        human.setHasToothPick(Boolean.parseBoolean(args[4]));
     }
 
     public void impactSpeed() throws IOException {
         String speed = args[5];
         if (!speed.equals("null")) {
-                if (!addIfMaxFlag || (maxCheck(IMPACTSPEED, speed)&&addIfMaxElement.equals(IMPACTSPEED))) {
+                if (!addIfMaxFlag || (maxCheck(ElementList.IMPACTSPEED, speed)&&addIfMaxElement.equals(ElementList.IMPACTSPEED))) {
                     long longSpeed = Long.parseLong(speed);
                     human.setImpactSpeed(longSpeed);
                 }
@@ -177,17 +157,17 @@ public class AddCore extends RecursiveTask<String> {
         if (maxList.size() > 0) {
             for (HumanBeing humanBeing : maxList) {
                 switch (addIfMaxElement) {
-                    case COORDSX:
+                    case ElementList.COORDSX:
                         maxList = maxList.stream().sorted(new CoordsXComparator()).collect(Collectors.toList());
                         Collections.reverse(maxList);
                         coordsMinX = maxList.get(0).getCoordinatesX();
                         break;
-                    case COORDSY:
+                    case ElementList.COORDSY:
                         maxList = maxList.stream().sorted(new CoordsYComparator()).collect(Collectors.toList());
                         Collections.reverse(maxList);
                         coordsMinY = maxList.get(0).getCoordinatesY();
                         break;
-                    case IMPACTSPEED:
+                    case ElementList.IMPACTSPEED:
                         maxList = maxList.stream().sorted(new ImpactSpeedComparator()).collect(Collectors.toList());
                         Collections.reverse(maxList);
                         impactSpeed = maxList.get(0).getImpactSpeed();
@@ -199,7 +179,7 @@ public class AddCore extends RecursiveTask<String> {
             }
         }
         switch (element) {
-            case COORDSX:
+            case ElementList.COORDSX:
                 if (coordsMinX >= Float.parseFloat(value)) {
                     this.addIfMaxFailure();
                 } else {
@@ -207,7 +187,7 @@ public class AddCore extends RecursiveTask<String> {
                     return (true);
                 }
                 break;
-            case COORDSY:
+            case ElementList.COORDSY:
                 if (coordsMinY >= Double.parseDouble(value)) {
                     this.addIfMaxFailure();
                 } else {
@@ -215,7 +195,7 @@ public class AddCore extends RecursiveTask<String> {
                     return (true);
                 }
                 break;
-            case IMPACTSPEED:
+            case ElementList.IMPACTSPEED:
                 if (impactSpeed > Long.parseLong(element)) {
                     this.addIfMaxFailure();
                 } else {
@@ -234,30 +214,11 @@ public class AddCore extends RecursiveTask<String> {
         deleteFlag = true;
         addIfMaxFlag = false;
         answer = "Данные, введенные ранее, не превышают значения максимального элемента. Новый элемент не будет добавлен.";
-
-    }
-
-    public void setAddIfMaxFlag(boolean flag) {
-        addIfMaxFlag = flag;
     }
 
     public void setAddIfMaxElement(String addIfMaxElement) {
         this.addIfMaxElement = addIfMaxElement;
     }
-
-
-    private static final String NAME = "name";
-    private static final String COORDS = "coordinates";
-    private static final String REALHERO = "realhero";
-    private static final String HASTOOTHPICK = "hastoothpick";
-    private static final String IMPACTSPEED = "impactspeed";
-    private static final String WEAPONTYPE = "weapontype";
-    private static final String MOOD = "mood";
-    private static final String CAR = "car";
-    private static final String COORDSX = "coordinates_x";
-    private static final String COORDSY = "coordinates_y";
-    private static final String CARCOOL = "carcool";
-
 
 }
 

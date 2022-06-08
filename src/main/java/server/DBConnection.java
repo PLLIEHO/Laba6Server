@@ -70,7 +70,7 @@ public class DBConnection {
                 human.setCarName(set.getString("car_name"));
                 human.setCarCool(set.getBoolean("car_coolness"));
                 human.setUser(set.getString("userlogin"));
-                collection.addHuman(human);
+                collection.addHuman(human, collection);
             }
         } catch (SQLException e){
             Server.LOG.info("Caught Database exception. May be some problems with connection.");

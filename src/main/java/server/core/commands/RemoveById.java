@@ -12,7 +12,7 @@ public class RemoveById {
             collection.getCollection().stream().filter(human -> human.getId() == ID).forEach(human -> {
                 new DBConnection().removeFromBD(human, user);
                 Server.LOG.info("Объект с ID {} успешно удален.", ID);
-                collection.removeHuman(human, user);
+                collection.removeHuman(human, user, collection);
             });
             return "Объект успешно удалён.";
 

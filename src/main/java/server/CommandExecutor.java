@@ -78,7 +78,7 @@ public class CommandExecutor extends RecursiveTask<Object> {
                     break;
                 case CLEAR:
                     new DBConnection().clearDB(user);
-                    collection.getCollection().clear();
+                    collection.clearColl(user, collection);
                     answer = "Cleared successfully";
                     break;
                 case EXIT:

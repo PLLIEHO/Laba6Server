@@ -52,32 +52,14 @@ public class UpdateCore {
                             answer = "Обновление прошло успешно.";
                             return answer;
                         case ElementList.REALHERO:
-                            String hero = arg.toUpperCase();
-                            if (hero.equals("true")) {
-                                humanBeing.setRealHero(true);
-                            } else {
-                                humanBeing.setRealHero(false);
-                            }
+                            humanBeing.setRealHero(Boolean.parseBoolean(arg));
                             new DBConnection().updateDB(humanBeing, user);
                             answer = "Обновление прошло успешно.";
                             return answer;
                         case ElementList.HASTOOTHPICK:
-                            String toothPick = arg.toUpperCase();
-                            switch (toothPick) {
-                                case "true":
-                                    humanBeing.setHasToothPick(true);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "false":
-                                    humanBeing.setHasToothPick(false);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                default:
-                                    humanBeing.setHasToothPick(null);
-                                    new DBConnection().updateDB(humanBeing, user);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                            }
+                            humanBeing.setHasToothPick(Boolean.parseBoolean(arg));
+                            new DBConnection().updateDB(humanBeing, user);
+                            answer = "Обновление прошло успешно.";
                             return answer;
                         case ElementList.IMPACTSPEED:
                             String speed = arg;
@@ -92,49 +74,14 @@ public class UpdateCore {
                             return answer;
                         case ElementList.WEAPONTYPE:
                             String weapon = arg.toLowerCase();
-                            switch (weapon) {
-                                case "axe":
-                                    humanBeing.setWeaponType(WeaponType.AXE);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "pistol":
-                                    humanBeing.setWeaponType(WeaponType.PISTOL);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "shotgun":
-                                    humanBeing.setWeaponType(WeaponType.SHOTGUN);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                default:
-                                    humanBeing.setWeaponType(WeaponType.RIFLE);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                            }
+                            humanBeing.setWeaponType(WeaponType.parseWeaponType(weapon));
+                            answer = "Обновление прошло успешно.";
                             new DBConnection().updateDB(humanBeing, user);
                             return answer;
                         case ElementList.MOOD:
                             String moodType = arg.toLowerCase();
-                            switch (moodType) {
-                                case "sadness":
-                                    humanBeing.setMood(Mood.SADNESS);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "gloom":
-                                    humanBeing.setMood(Mood.GLOOM);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "apathy":
-                                    humanBeing.setMood(Mood.APATHY);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                case "calm":
-                                    humanBeing.setMood(Mood.CALM);
-                                    answer = "Обновление прошло успешно.";
-                                    break;
-                                default:
-                                    humanBeing.setMood(Mood.RAGE);
-                                    answer = "Обновление прошло успешно.";
-                            }
+                            humanBeing.setMood(Mood.parseMood(moodType));
+                            answer = "Обновление прошло успешно.";
                             new DBConnection().updateDB(humanBeing, user);
                             return answer;
                         case ElementList.CARNAME:
@@ -145,11 +92,7 @@ public class UpdateCore {
                             return answer;
                         case ElementList.CARCOOL:
                             String cool = arg.toUpperCase();
-                            if (cool.equals("true")) {
-                                humanBeing.setCarCool(true);
-                            } else {
-                                humanBeing.setCarCool(false);
-                            }
+                            humanBeing.setCarCool(Boolean.parseBoolean(cool));
                             new DBConnection().updateDB(humanBeing, user);
                             answer = "Обновление прошло успешно.";
                             return answer;

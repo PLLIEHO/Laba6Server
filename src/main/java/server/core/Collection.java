@@ -22,14 +22,14 @@ public class Collection  {
      *
      * @param human новый объект класса HumanBeing
      */
-    public String addHuman(HumanBeing human){
-            humanQue.addLast(human);
+    public String addHuman(HumanBeing human, Collection collection){
+            collection.getCollection().addLast(human);
             return "Added successfully.";
     }
 
-    public String removeHuman(HumanBeing humanBeing, String user){
+    public String removeHuman(HumanBeing humanBeing, String user, Collection collection){
             if(user.equals(humanBeing.getUser())) {
-                humanQue.remove(humanBeing);
+                collection.getCollection().remove(humanBeing);
 
                 return "Removed successfully.";
             } else {
@@ -37,8 +37,8 @@ public class Collection  {
             }
     }
 
-    public void clearColl(String user){
-        humanQue.removeIf(human -> human.getUser().equals(user));
+    public void clearColl(String user, Collection collection){
+        collection.getCollection().removeIf(human -> human.getUser().equals(user));
     }
 
     public HumanBeing createHumanToAdd(HumanBeing human){
@@ -67,7 +67,7 @@ public class Collection  {
         return humanQue.getLast();
     }
 
-    public Deque<HumanBeing> getCollection(){
+    public ConcurrentLinkedDeque<HumanBeing> getCollection(){
         return humanQue;
     }
     /**
@@ -76,16 +76,5 @@ public class Collection  {
      */
     public Date getData(){return data;}
 
-    /**
-     * Ищет все объекты коллекции, поле Name которых содержит данную подстроку
-     * @param value Подстрока, которая должна содержаться в имени
-     */
-    public void searchName(String value){
-        for(HumanBeing humanBeing : humanQue){
-            if(humanBeing.getName().contains(value)){
-                System.out.println(humanBeing);
-            }
-        }
-    }
 
 }

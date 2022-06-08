@@ -76,7 +76,7 @@ public class Parser {
                 if (idFlag&&!tag.equals(TagList.HEROLIST_OVER)&&count<counter-1) {
                     if (check()) {
                         HumanBeing human = new HumanBeing();
-                        collection.addHuman(human);
+                        collection.addHuman(human, collection);
                         sygnal = false;
                         idFlag = false;
                     }
